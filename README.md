@@ -11,7 +11,7 @@ To get started with Hardhat 3, you'll need [Node.js v22](https://nodejs.org/) or
 Install the contents of package.json: `npm install`
 
 
-## How to use or deploy (incomplete details are acceptable at this stage)
+## How to use or deploy
 1. Start and complie the smart contract:
     `npx hardhat compile`
 
