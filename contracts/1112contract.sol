@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-// 需要在 Hardhat/Remix 裡安裝 OpenZeppelin 套件
+// OpenZeppelin 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -14,33 +14,33 @@ contract WineChain is ERC721, AccessControl {
 
     // === Product Journey ===
     enum Stage {
-        Created,     // 剛從酒莊出來
-        InShipment,  // 運送中/在供應鏈之間流動
-        InStorage,   // 到零售商倉庫/酒窖
-        Delivered    // 到消費者手上
+        Created,     //at winery
+        InShipment,  //with distributor
+        InStorage,   //at retailer
+        Delivered    //to customer
     }
 
-    // 每一瓶酒的基本資訊
+    // wine information
     struct WineInfo {
-        uint256 vintage;        // 年份
-        string grapeVarietal;   // 葡萄品種
-        string region;          // 產區
-        string bottlingDate;    // 裝瓶日期（簡單先用 string）
-        string ipfsHash;        // metadata / certificates 存在 IPFS
-        Stage stage;            // 目前階段
-        address currentCustodian; // 目前誰在持有（酒莊/經銷/零售/消費者）
-        address winery;         // 原始酒莊
-        bool approvedByRegulator; // 是否被核可
+        uint256 vintage;        //year 
+        string grapeVarietal;   
+        string region;          
+        string bottlingDate;    
+        string ipfsHash;        // metadata / certificates stored by IPFS
+        Stage stage;            
+        address currentCustodian; 
+        address winery;         
+        bool approvedByRegulator; 
     }
 
-    // 條件紀錄（運送/儲存狀況）
+    // comdition log 
     struct ConditionLog {
         string condition;   // e.g. "Temp: 16C, humidity 70%"
         uint256 timestamp;
         address updatedBy;
     }
 
-    // tokenId 自動累加
+    // tokenId tracker
     uint256 private _nextTokenId;
 
     // tokenId -> WineInfo
@@ -61,13 +61,13 @@ contract WineChain is ERC721, AccessControl {
     event WineApproved(uint256 indexed tokenId, address indexed regulator);
 
     constructor() ERC721("WineChain", "WINE") {
-        // 部署者是 admin
+        //  admin
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        // 讓部署者同時是 Winery（方便測試）
+        // admin =  Winery（can be changed later）
         _grantRole(WINERY_ROLE, msg.sender);
     }
 
-    // === Winery: 建立新酒 ===
+    // === Winery: creat wine ===
     function createWine(
         uint256 vintage,
         string memory grapeVarietal,
@@ -95,7 +95,7 @@ contract WineChain is ERC721, AccessControl {
         return tokenId;
     }
 
-    // === Winery: 交給 Distributor（Shipment stage）===
+    // === Winery: transfer to  Distributor（Shipment stage）===
     function transferToDistributor(
         uint256 tokenId,
         address distributor,
@@ -113,7 +113,7 @@ contract WineChain is ERC721, AccessControl {
         emit CustodyTransferred(tokenId, msg.sender, distributor, Stage.InShipment);
     }
 
-    // === Distributor: 送到 Retailer（Storage stage）===
+    // === Distributor: transfer to Retailer（Storage stage）===
     function receiveAtRetailer(
         uint256 tokenId,
         address retailer,
@@ -131,7 +131,7 @@ contract WineChain is ERC721, AccessControl {
         emit CustodyTransferred(tokenId, msg.sender, retailer, Stage.InStorage);
     }
 
-    // === Retailer: 交給 Consumer（Delivery stage）===
+    // === Retailer: transfer to Consumer（Delivery stage）===
     function deliverToConsumer(
         uint256 tokenId,
         address consumer,
@@ -148,11 +148,11 @@ contract WineChain is ERC721, AccessControl {
         emit CustodyTransferred(tokenId, msg.sender, consumer, Stage.Delivered);
     }
 
-    // === 過程中更新條件（運送/儲存狀態）===
+    // === update condition===
     function updateCondition(uint256 tokenId, string memory condition) external {
         ownerOf(tokenId);       
 
-        // 這裡可以調整權限：目前簡單限制三種角色可以更新
+        // here we allow winery, distributor, retailer to update 
         require(
             hasRole(WINERY_ROLE, msg.sender) ||
             hasRole(DISTRIBUTOR_ROLE, msg.sender) ||
@@ -163,14 +163,14 @@ contract WineChain is ERC721, AccessControl {
         _addCondition(tokenId, condition);
     }
 
-    // === Regulator: 核可這瓶酒 ===
+    // === Regulator ===
     function approveWine(uint256 tokenId) external onlyRole(REGULATOR_ROLE) {
         ownerOf(tokenId);       
         wines[tokenId].approvedByRegulator = true;
         emit WineApproved(tokenId, msg.sender);
     }
 
-    // === 讀取條件歷史（給前端/消費者查詢）===
+    // === condition history===
     function getConditionHistory(uint256 tokenId)
         external
         view
@@ -180,7 +180,7 @@ contract WineChain is ERC721, AccessControl {
     }
     
 
-    // Internal: 加一筆 condition log + emit event
+    // Internal: add condition log + emit event
     function _addCondition(uint256 tokenId, string memory condition) internal {
         ConditionLog memory logEntry = ConditionLog({
             condition: condition,
@@ -191,7 +191,7 @@ contract WineChain is ERC721, AccessControl {
 
         emit ConditionUpdated(tokenId, condition, block.timestamp);
     }
-    // v5 的寫法：同時覆寫 ERC721 與 AccessControl 的 supportsInterface
+    // v5 ： ERC721 and  supportsInterface of AccessControl
 function supportsInterface(bytes4 interfaceId)
     public
     view
