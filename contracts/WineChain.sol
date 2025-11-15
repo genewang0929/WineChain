@@ -1,101 +1,163 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+// OpenZeppelin 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-/**
- * === Stakeholders ===
- * - Winery: Creates wine
- * - Distributor: Ships wine
- * - Retailer: Stores & sells
- * - Consumer: Verifies authenticity
- */
-contract WineChain is ERC721, AccessControl {
-    bytes32 public constant WINERY_ROLE = keccak256("WINERY");
-    bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR");
-    bytes32 public constant RETAILER_ROLE = keccak256("RETAILER");
-    bytes32 public constant REGULATOR_ROLE = keccak256("REGULATOR");
+contract WineChain is ERC721, ERC721URIStorage, AccessControl {
+    // === Roles ===
+    bytes32 public constant WINERY_ROLE     = keccak256("WINERY_ROLE");
+    bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
+    bytes32 public constant RETAILER_ROLE    = keccak256("RETAILER_ROLE");
+    bytes32 public constant REGULATOR_ROLE   = keccak256("REGULATOR_ROLE");
+    bytes32 public constant CONSUMER_ROLE    = keccak256("CONSUMER_ROLE");
 
-/**
- * === Product Journey (4 Stages) ===
- * 1. Creation    → Winery mints NFT
- * 2. Shipment    → Transfer to distributor
- * 3. Storage     → Retailer receives and logs conditions
- * 4. Delivery    → Final sale to consumer
-*/
-    enum Stage { Created, Shipped, Stored, Delivered }
+    // === Product Journey ===
+    enum State { 
+        Produced, 
+        Distributed, 
+        Received, 
+        Inspected, 
+        Sold 
+        }
 
+    // wine information
     struct Wine {
-        uint256 vintage;           // e.g., 2020
-        string grapeVarietal;      // e.g., "Cabernet Sauvignon"
-        string region;             // e.g., "Napa Valley"
-        string bottlingDate;       // e.g., "2023-06-15"
-        string ipfsHash;           // IPFS CID of certificates & metadata
-        Stage currentStage;        // Current supply chain stage
-        address currentOwner;      // Current custodian
+        uint256 tokenId;
+        State state;
+        address winery;
+        address distributor;
+        address retailer;
+        address regulator;
+        address consumer;
+        string inspectionUri;
     }
 
-    mapping(uint256 => Wine) public wines;
-    uint256 public nextTokenId;
+    // tokenId tracker
+    uint256 private _nextTokenId;
 
-    // === Events for transparency & off-chain indexing ===
-    event WineCreated(uint256 indexed tokenId, address winery, string ipfsHash);
-    event CustodyTransferred(uint256 indexed tokenId, address from, address to, Stage newStage);
-    event ConditionUpdated(uint256 indexed tokenId, string condition, uint256 timestamp);
+    // tokenId -> WineInfo
+    mapping(uint256 => Wine) public wines;
+
+    // === Events ===
+    event WineCreated(uint256 indexed tokenId, address indexed winery, string tokenURI);
+    event WineDistributed(uint256 indexed tokenId, address indexed distributor);
+    event WineReceived(uint256 indexed tokenId, address indexed retailer);
+    event WineInspected(uint256 indexed tokenId, address indexed regulator, string reportUri);
+    event WineSold(uint256 indexed tokenId, address indexed consumer);
 
     constructor() ERC721("WineChain", "WINE") {
+        //  admin
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // admin =  Winery（can be changed later）
+        _grantRole(WINERY_ROLE, msg.sender);
     }
 
-    // Winery creates a new wine
+    // -------- Role management helpers --------
+    function grantDistributor(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(DISTRIBUTOR_ROLE, account);
+    }
+    function grantRetailer(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(RETAILER_ROLE, account);
+    }
+    function grantRegulator(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(REGULATOR_ROLE, account);
+    }
+    function grantConsumer(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(CONSUMER_ROLE, account);
+    }
+
+    // === Winery: create wine ===
     function createWine(
-        uint256 vintage,
-        string memory grapeVarietal,
-        string memory region,
-        string memory bottlingDate,
-        string memory ipfsHash
+        string memory tokenUri
     ) external onlyRole(WINERY_ROLE) returns (uint256) {
-        
+        uint256 tokenId = ++_nextTokenId;
 
+        _safeMint(msg.sender, tokenId);
+        _setTokenURI(tokenId, tokenUri);
+
+        wines[tokenId] = Wine({
+            tokenId: tokenId,
+            state: State.Produced,
+            winery: msg.sender,
+            distributor: address(0),
+            retailer: address(0),
+            regulator: address(0),
+            consumer: address(0),
+            inspectionUri: ""
+        });
+
+        emit WineCreated(tokenId, msg.sender, tokenUri);
+        return tokenId;
     }
 
-    // Winery transfers custody to distributor (Shipment stage)
-    function transferToDistributor(
-        uint256 tokenId,
-        address distributor,
-        string memory transportCondition
-    ) external onlyRole(WINERY_ROLE) {
+    /// @notice Distributor holds token to mark distribution (must be called by distributor)
+    function distributeWine(uint256 tokenId) external onlyRole(DISTRIBUTOR_ROLE) {
+        Wine storage w = wines[tokenId];
+        require(ownerOf(tokenId) == w.winery, "Not owner");
+        require(w.state == State.Produced, "Wrong state");
+        // transfer token to distributor to reflect custody change (optional)
+        safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
 
+        w.distributor = msg.sender;
+        w.state = State.Distributed;
+        emit WineDistributed(tokenId, msg.sender);
     }
 
-    // Distributor confirms receipt at retailer (Storage stage)
-    function receiveAtRetailer(
-        uint256 tokenId,
-        string memory storageCondition
-    ) external onlyRole(DISTRIBUTOR_ROLE) {
+    /// @notice Retailer receives wine
+    function receiveWine(uint256 tokenId) external onlyRole(RETAILER_ROLE) {
+        Wine storage w = wines[tokenId];
+        require(ownerOf(tokenId) == w.distributor, "Not owner");
+        require(w.state == State.Distributed, "Wrong state");
+        // transfer custody to retailer
+        safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
 
+        w.retailer = msg.sender;
+        w.state = State.Received;
+        emit WineReceived(tokenId, msg.sender);
     }
 
-    // Retailer delivers to final consumer (Delivery stage)
-    function deliverToConsumer(uint256 tokenId) external onlyRole(RETAILER_ROLE) {
+    /// @notice Regulator inspects and attaches a report URI (IPFS)
+    function inspectWine(uint256 tokenId, bool passed, string calldata reportUri) external onlyRole(REGULATOR_ROLE) {
+        Wine storage w = wines[tokenId];
+        require(ownerOf(tokenId) == w.retailer, "Not owner");
+        require(w.state == State.Received, "Wrong state");
+        require(passed, "Inspection failed");
 
+        w.regulator = msg.sender;
+        w.inspectionUri = reportUri;
+        w.state = State.Inspected;
+        emit WineInspected(tokenId, msg.sender, reportUri);
     }
 
-    // Internal function to handle all ownership transfers and stage updates
-    function _transferCustody(uint256 tokenId, address to, Stage newStage) internal {
+    /// @notice Consumer buys wine -- transfer occurs to consumer and state set to Sold
+    function buyWine(uint256 tokenId) external onlyRole(CONSUMER_ROLE) payable {
+        Wine storage w = wines[tokenId];
+        require(ownerOf(tokenId) == w.retailer, "Not owner");
+        require(w.state == State.Inspected, "Must be inspected before sale");
+        // transfer token to consumer (should be called by current owner or approved)
+        address currentOwner = ownerOf(tokenId);
+        safeTransferFrom(currentOwner, msg.sender, tokenId);
 
+        w.consumer = msg.sender;
+        w.state = State.Sold;
+        emit WineSold(tokenId, msg.sender);
     }
 
-    // Consumer or regulator queries full provenance
-    function getWineJourney(uint256 tokenId) external view returns (Wine memory) {
-
+    /// @notice Convenience getter
+    function getWine(uint256 tokenId) external view returns (Wine memory) {
+        return wines[tokenId];
+    }
+    
+    // v5 ： ERC721 and  supportsInterface of AccessControl
+    function supportsInterface(bytes4 interfaceId) public view override(AccessControl, ERC721, ERC721URIStorage)returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
-    // Regulator verifies authenticity via IPFS hash
-    function verifyCertificate(uint256 tokenId, string memory expectedHash) 
-        external view returns (bool) {
-
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
     }
+
 }
-
