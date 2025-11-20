@@ -9,7 +9,7 @@ function App() {
     <Routes>
       <Route path="/" element={<RoleSelect />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      {/* 以後所有頁面都加在這裡就好 */}
+      
     </Routes>
   );
 }
