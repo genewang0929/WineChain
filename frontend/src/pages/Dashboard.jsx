@@ -12,6 +12,12 @@ export default function Dashboard() {
     navigate("/");   
   };
 
+  const goToRolePage = () => {
+    if (!role) return;
+    const lower = role.toLowerCase();   // "Winery" → "winery"
+    navigate(`/${lower}`);              // 導向 /winery
+  };
+
   return (
     <div className="dashboard-wrapper">
       <button onClick={handleBack} className="back-to-role-btn">
@@ -21,13 +27,15 @@ export default function Dashboard() {
       {/* Main */}
       <div className="dashboard-content">
         <h1>
-          You are <strong className="role-text">{role}</strong>
+          You are <strong className="role-text">{role}</strong> ?
         </h1>
 
-        {/* Role Function */}
-        <div className="coming-soon">
-          
+        <div style={{ marginTop: "100px" }}>
+          <button className="enter-btn" onClick={goToRolePage}>
+            Enter {role} Dashboard
+          </button>
         </div>
+          
       </div>
     </div>
   );
