@@ -15,7 +15,7 @@ export default function Dashboard() {
   const goToRolePage = () => {
     if (!role) return;
     const lower = role.toLowerCase();   // "Winery" → "winery"
-    navigate(`/${lower}`);              // 導向 /winery
+    navigate(`/${lower}`);            
   };
 
   return (
