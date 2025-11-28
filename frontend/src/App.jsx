@@ -43,8 +43,6 @@ function App() {
       <Route path="/consumer/check" element={<Consumer/>} />
 
       
-
-   
     </Routes>
   );
 }
