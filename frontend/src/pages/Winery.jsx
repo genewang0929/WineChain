@@ -10,13 +10,15 @@ export default function Winery() {
   const [wineName, setWineName] = useState("");
   const [origin, setOrigin] = useState("");
   const [year, setYear] = useState("");
-
+  const [tempature, setTemp] = useState("");
+  const [isConditionGood, setIsConditionGood] = useState();
+  
   const [loading, setLoading] = useState(false);
   const [cid, setCid] = useState("");
   const [txHash, setTxHash] = useState("");
 
   const handleCreateWine = async () => {
-    if (!wineName || !origin || !year) {
+    if (!wineName || !origin || !year || !tempature ) {
       alert("Please fill in all the information!");
       return;
     }
@@ -73,7 +75,7 @@ export default function Winery() {
               placeholder="e.g. Chateau Margaux"
             />
 
-            <label>Origin:</label>
+            <label>Region:</label>
             <input
               type="text"
               value={origin}
@@ -89,6 +91,22 @@ export default function Winery() {
               placeholder="2020"
             />
 
+            <label>Temperature:</label>
+            <input
+              type="number"
+              value={tempature}
+              onChange={(e) => setTemp(e.target.value)}
+              placeholder="75F"
+            />
+
+            <label>Condition Good?</label>
+            <input
+              type="checkbox"
+              checked={isConditionGood}
+              onChange={(e) => setIsConditionGood(e.target.checked)}
+            />
+
+
             <button onClick={handleCreateWine}>Create Wine</button>
 
             {loading && <p>Uploading to IPFS...</p>}
@@ -99,7 +117,7 @@ export default function Winery() {
       );
     }
 
-    if (path === "/winery/transfer") {
+    /*if (path === "/winery/transfer") {
       return (
         <div className="winery-box">
           <h2>Transfer to Distributor</h2>
@@ -116,7 +134,7 @@ export default function Winery() {
         </div>
       );
     }
-
+    */
     if (path === "/winery/mywines") {
       return (
         <div className="winery-box">
@@ -133,8 +151,10 @@ export default function Winery() {
 
         <div className="winery-buttons">
           <button onClick={() => navigate("/winery/create")}>Create Wine NFT</button>
+          {/* 
           <button onClick={() => navigate("/winery/transfer")}>Transfer to Distributor</button>
           <button onClick={() => navigate("/winery/update")}>Update Condition</button>
+          */}
           <button onClick={() => navigate("/winery/mywines")}>View My Wines</button>
         </div>
       </>

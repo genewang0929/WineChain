@@ -16,20 +16,11 @@ export default function Regulator() {
       return (
         <div className="regulator-box">
           <h2>Approve wine </h2>
-          <p></p>
+          
         </div>
       );
     }
 
-
-    if (path === "/regulator/mywines") {
-      return (
-        <div className="regulator-box">
-          <h2>My Wines</h2>
-          <p>NFT list</p>
-        </div>
-      );
-    }
 
     // main menu
     return (
@@ -39,7 +30,6 @@ export default function Regulator() {
 
         <div className="regulator-buttons">
           <button onClick={() => navigate("/regulator/approve")}>Approve wine</button>
-          <button onClick={() => navigate("/regulator/mywines")}>View My Wines</button>
         </div>
       </>
     );
