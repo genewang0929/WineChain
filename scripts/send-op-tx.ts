@@ -1,22 +1,14 @@
-import { network } from "hardhat";
+import hre from "hardhat";
 
-const { ethers } = await network.connect({
-  network: "hardhatOp",
-  chainType: "op",
+async function main() {
+  const WineChain = await hre.ethers.getContractFactory("WineChain");
+  const wineChain = await WineChain.deploy();
+  await wineChain.waitForDeployment();
+
+  console.log("WineChain deployed at:", await wineChain.getAddress());
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
 });
-
-console.log("Sending transaction using the OP chain type");
-
-const [sender] = await ethers.getSigners();
-
-console.log("Sending 1 wei from", sender.address, "to itself");
-
-console.log("Sending L2 transaction");
-const tx = await sender.sendTransaction({
-  to: sender.address,
-  value: 1n,
-});
-
-await tx.wait();
-
-console.log("Transaction sent successfully");
