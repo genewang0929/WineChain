@@ -1,0 +1,131 @@
+.distributor-wrapper {
+    background: #f5f4f2;
+    min-height: 100vh;
+    padding-top: 60px;
+    text-align: center;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .distributor-back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 2px solid #7b1f23;
+    background: white;
+    color: #7b1f23;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  
+  .subtitle {
+    font-size: 28px;
+    margin-bottom: 28px;
+    color: #555;
+    align-items: center;
+  }
+  
+  .distributor-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 300px;
+    margin: 0 auto;
+    margin-top: 60px;
+    align-items: center;
+  }
+  
+  .distributor-buttons button {
+    width: 260px;
+    padding: 14px 0;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .distributor-buttons button:hover {
+    background: #7b1f23;
+    color: white;
+  }
+  
+ 
+  .distributor-box {
+    margin-top: 40px;
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  }
+  
+  .create-form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 500px;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-top: 40px;
+    gap: 20px;
+  }
+  
+  .create-form label {
+    font-size: 20px;
+    font-weight: 700;
+    color: #7b1f23;
+  }
+  
+  .create-form input,
+  .create-form textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 2px solid #dbd9d9;
+    outline: none;
+    transition: 0.2s;
+  }
+  
+  .create-form input:focus,
+  .create-form textarea:focus {
+    border-color: #7b1f23;
+    box-shadow: 0 0 5px rgba(123,31,35,0.3);
+  }
+  
+  .create-form button {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 10px;
+    background: #7b1f23;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .create-form button:hover {
+    background: #56181b;
+  }
+  
+  /* CID / Loading Text */
+  .create-form p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #444;
+    word-break: break-all;
+  }
+  }
