@@ -1,6 +1,9 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "./Winery.css";
+import { ethers } from "ethers";
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractCall.js"; 
+
 
 export default function Winery() {
   const navigate = useNavigate();
@@ -31,26 +34,72 @@ export default function Winery() {
         name: wineName,
         origin: origin,
         year: Number(year),
+        tempature: Number(tempature),
+        isConditionGood: isConditionGood,
       };
 
-      // 2. Upload to Pinata (your backend)
+      // 2. Upload to Pinata (backend)
       const res = await fetch("http://localhost:5001/uploadMetadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(metadata),
       });
+      if (!res.ok) {
+      alert("Failed to upload metadata."); 
+      setLoading(false);
+      return;
+      }
 
       const data = await res.json();
+      const cid = data.cid;
       setCid(data.cid);
-
-      // 3. TODO: call your smart contract here
-      // const tx = await contract.methods.createWine(data.cid).send({ from: userAddress });
-      // setTxHash(tx.transactionHash);
-
       alert("Metadata uploaded!");
+
+      // 3. call smart contract here
+      // == MetaMask ==
+      if (!window.ethereum) {
+      alert("Please install MetaMask first!");
+      setLoading(false);
+      return;
+      }
+      // Create a provider
+      //await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      //await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // Call createWine function and get tokenId
+      const tokenUri = `ipfs://${cid}`;
+      const tx = await contract.createWine(tokenUri);
+
+      console.log("tx sent:", tx.hash);
+      setTxHash(tx.hash);
+
+      const receipt = await tx.wait();
+      console.log("tx mined:", receipt);
+
+      // Get the tokenId from the Transfer event
+      let tokenId = null;
+      const eventSignature = ethers.id("WineCreated(uint256,address,string)");
+
+      for (const log of receipt.logs) {
+        if (log.topics[0] === eventSignature) {
+          tokenId = ethers.getBigInt(log.topics[1]).toString();
+          break;
+        }
+      }
+
+      if (tokenId) {
+        alert(`Wine Created! TokenID = ${tokenId}`);
+        console.log("Parsed tokenID:", tokenId);
+      } else {
+        alert("Wine created, but tokenId could not be parsed.");
+      }
+
     } catch (err) {
       console.error(err);
-      alert("Failed to upload metadata.");
+      alert("Failed to create wine: " + err.message);
     }
 
     setLoading(false);
