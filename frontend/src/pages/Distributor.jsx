@@ -30,28 +30,28 @@ export default function Distributor() {
     setLoading(true);
 
     try {
-      // 1. Build JSON metadata
-      const metadata = {
-        ID: wineID,
-        Location: wineLocation,
-        Temp: wineTemp,
-      };
+    //   // 1. Build JSON metadata
+    //   const metadata = {
+    //     ID: wineID,
+    //     Location: wineLocation,
+    //     Temp: wineTemp,
+    //   };
 
-      // 2. Upload to Pinata (your backend)
-      const res = await fetch("http://localhost:5001/uploadMetadata", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(metadata),
-      });
+    //   // 2. Upload to Pinata (your backend)
+    //   const res = await fetch("http://localhost:5001/uploadMetadata", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(metadata),
+    //   });
 
-      const data = await res.json();
-      setCid(data.cid);
+    //   const data = await res.json();
+    //   setCid(data.cid);
 
       // 3. TODO: call your smart contract here
-      // const tx = await contract.methods.createWine(data.cid).send({ from: userAddress });
-      // setTxHash(tx.transactionHash);
+      const tx = await contract.methods.distr(data.cid).send({ from: userAddress });
+      setTxHash(tx.transactionHash);
 
-      alert("Metadata uploaded!");
+    //   alert("Metadata uploaded!");
     } catch (err) {
       console.error(err);
       alert("Failed to upload metadata.");
