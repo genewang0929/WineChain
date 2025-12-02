@@ -1,13 +1,20 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect} from "react";
+import { useState, useEffect, useContext} from "react";
 import "./Distributor.css";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractCall.js";
+
+import { RoleContext } from "../context/RoleContext";
+
+
+
 
 export default function Distributor() {
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;  
+  const { accountsInfo } = useContext(RoleContext);
+  const distributorAddress = accountsInfo?.distributor;
 
   // const for View My Wines
   const [myWines, setMyWines] = useState([]);
@@ -303,6 +310,11 @@ export default function Distributor() {
 
   return (
     <div className="distributor-wrapper">
+
+      {/* Show which account should be used */}
+      <p style={{ color: "#7b1f23", fontWeight: 600, marginTop: "10px" }}>
+        Please switch MetaMask to Distributor account: <b>{distributorAddress}</b>
+      </p>
       
       {/* back to home */}
       <button className="distributor-back-btn" onClick={goHome}>

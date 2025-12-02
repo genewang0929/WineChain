@@ -104,7 +104,8 @@ contract WineChain is ERC721, ERC721URIStorage, AccessControl {
         require(ownerOf(tokenId) == w.winery, "Not owner");
         require(w.state == State.Produced, "Wrong state");
         // transfer token to distributor to reflect custody change (optional)
-        safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
+        //safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
+        _transfer(w.winery, msg.sender, tokenId);
 
         w.distributor = msg.sender;
         w.state = State.Distributed;
