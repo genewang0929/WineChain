@@ -1,14 +1,19 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect} from "react";
+import { useState, useEffect, useContext} from "react";
 import "./Winery.css";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractCall.js"; 
+//import { RoleContext } from "../context/RoleContext";
+
+
 
 
 export default function Winery() {
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
+  //const { accountsInfo } = useContext(RoleContext);
+  //const wineryAddress = accountsInfo?.winery;
 
   const [wineName, setWineName] = useState("");
   const [origin, setOrigin] = useState("");
@@ -118,14 +123,15 @@ export default function Winery() {
         return;
       }
 
+
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      //const signer = await provider.getSigner();
+      //const userAddress = await signer.getAddress();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+      const WINERY_ROLE = await contract.WINERY_ROLE();
 
       // 1. ask total minted wines 
       const total = await contract.totalMinted();
-
       const wines = [];
 
       // 2. check each tokenId's owner
@@ -139,7 +145,14 @@ export default function Winery() {
         }
 
         // use ownerOf check if it's mine wine now
-        if (owner.toLowerCase() !== userAddress.toLowerCase()) continue;
+        //if (!wineData || !wineData.winery) continue;
+        //if (wineData.winery.toLowerCase() !== wineryAddress.toLowerCase()) continue;
+        //if (owner.toLowerCase() !== wineryAddress.toLowerCase()) continue;
+
+        // key: check whether the owner has WINERY_ROLE
+        const hasRole = await contract.hasRole(WINERY_ROLE, owner);
+        if (!hasRole) continue; // if not distributor hold it, skip
+        
 
         // 3. get tokenURI (ipfs://CID)
         const tokenUri = await contract.tokenURI(i);
@@ -280,6 +293,7 @@ export default function Winery() {
               {myWines.map((w) => (
                 <div key={w.tokenId} className="wine-card">
                   <p><b>🏷️ Token ID:</b> {w.tokenId}</p>
+
 
                   <p>
                     <b>IPFS URI:</b>{" "}
