@@ -323,10 +323,7 @@ export default function Distributor() {
   return (
     <div className="distributor-wrapper">
 
-      {/* Show which account should be used */}
-      <p style={{ color: "#7b1f23", fontWeight: 600, marginTop: "10px" }}>
-        Please switch MetaMask to Distributor account: <b>{distributorAddress}</b>
-      </p>
+      
       
       {/* back to home */}
       <button className="distributor-back-btn" onClick={goHome}>
