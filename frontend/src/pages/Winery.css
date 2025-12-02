@@ -59,7 +59,17 @@
     background: #7b1f23;
     color: white;
   }
- 
+  
+  .mywines-title {
+    font-size: 36px;        /* ← 調整大小 */
+    font-weight: 800;
+    color: #7b1f23;         /* Wine Red */
+    margin-bottom: 25px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  
+
   .winery-box {
     margin: 40px auto;
     max-width: 900px;
@@ -67,7 +77,8 @@
     padding: 25px;
     border-radius: 14px;
     box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-    
+  } 
+
   /* Create Wine Form */
   .create-form {
     display: flex;
@@ -128,4 +139,68 @@
     color: #444;
     word-break: break-all;
   }
+
+  /*View My Wines - Wine List*/
+
+  .wine-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+    padding: 10px;
+  }
+
+  .wine-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: 0.25s ease;
+    text-align: left;
+    border-left: 6px solid #7b1f23; /* Wine red */
+  }
+
+  .wine-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+  }
+
+  /* Token ID */
+  .wine-card p:first-child {
+    font-size: 25px;
+    font-weight: 800;
+    color: #7b1f23;
+    margin-bottom: 18px;
+    margin-top: -10px;
+    text-align: center;
+  }
+
+  /* Metadata text */
+  .wine-card p {
+    margin: 8px 0;
+    line-height: 1.4;
+    font-size: 15px;
+    color: #444;
+  }
+
+  /* IPFS Link */
+  .wine-card a {
+    color: #7b1f23;
+    font-weight: 600;
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  .wine-card a:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    .wine-card {
+      padding: 16px;
+    }
+    .wine-card p {
+      font-size: 15px;
+    }
   }
