@@ -92,6 +92,7 @@ export interface WineChainInterface extends Interface {
       | "supportsInterface"
       | "symbol"
       | "tokenURI"
+      | "totalMinted"
       | "transferFrom"
       | "wines"
   ): FunctionFragment;
@@ -237,6 +238,10 @@ export interface WineChainInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "totalMinted",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
@@ -338,6 +343,10 @@ export interface WineChainInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalMinted",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -754,6 +763,8 @@ export interface WineChain extends BaseContract {
 
   tokenURI: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
+  totalMinted: TypedContractMethod<[], [bigint], "view">;
+
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
     [void],
@@ -929,6 +940,9 @@ export interface WineChain extends BaseContract {
   getFunction(
     nameOrSignature: "tokenURI"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalMinted"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
