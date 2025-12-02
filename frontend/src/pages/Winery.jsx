@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import "./Winery.css";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractCall.js"; 
@@ -19,6 +19,10 @@ export default function Winery() {
   const [loading, setLoading] = useState(false);
   const [cid, setCid] = useState("");
   const [txHash, setTxHash] = useState("");
+
+  // const for View My Wines
+  const [myWines, setMyWines] = useState([]);
+  const [loadingMyWines, setLoadingMyWines] = useState(false);
 
   const handleCreateWine = async () => {
     if (!wineName || !origin || !year || !tempature ) {
@@ -105,6 +109,82 @@ export default function Winery() {
     setLoading(false);
   };
 
+  const loadMyWines = async () => {
+    try {
+      setLoadingMyWines(true);
+
+      if (!window.ethereum) {
+        alert("Please install MetaMask first!");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // 1. ask total minted wines 
+      const total = await contract.totalMinted();
+
+      const wines = [];
+
+      // 2. check each tokenId's owner
+      for (let i = 1; i <= Number(total); i++) {
+        let owner;
+        try {
+          owner = await contract.ownerOf(i);
+        } catch (e) {
+          // token not exist
+          continue;
+        }
+
+        // use ownerOf check if it's mine wine now
+        if (owner.toLowerCase() !== userAddress.toLowerCase()) continue;
+
+        // 3. get tokenURI (ipfs://CID)
+        const tokenUri = await contract.tokenURI(i);
+
+        // 4. transfer to  HTTP URL to get metadata JSON
+        let httpURL = tokenUri;
+        if (tokenUri.startsWith("ipfs://")) {
+          const cid = tokenUri.replace("ipfs://", "");
+          httpURL = `https://gateway.pinata.cloud/ipfs/${cid}`;
+        }
+
+        let metadata = {};
+        try {
+          const res = await fetch(httpURL);
+          if (res.ok) {
+            metadata = await res.json();
+          }
+        } catch (err) {
+          console.error("Failed to fetch metadata for token", i, err);
+        }
+
+        wines.push({
+          tokenId: i.toString(),
+          tokenUri,
+          metadata,
+        });
+      }
+
+      setMyWines(wines);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load wines: " + err.message);
+    } finally {
+      setLoadingMyWines(false);
+    }
+  };
+
+  useEffect(() => {
+    if (path === "/winery/mywines") {
+      loadMyWines();
+    }
+  }, [path]);
+
+
+
   const goHome = () => navigate("/");
   const goMenu = () => navigate("/winery");
 
@@ -188,10 +268,40 @@ export default function Winery() {
       return (
         <div className="winery-box">
           <h2>My Wines</h2>
-          <p>NFT list</p>
+
+          {loadingMyWines && <p>Loading...</p>}
+
+          {!loadingMyWines && myWines.length === 0 && (
+            <p>You don’t have any wines yet.</p>
+          )}
+
+          {!loadingMyWines && myWines.length > 0 && (
+            <div className="wine-list">
+              {myWines.map((w) => (
+                <div key={w.tokenId} className="wine-card">
+                  <p><b>Token ID:</b> {w.tokenId}</p>
+
+                  <p>
+                    <b>IPFS URI:</b>{" "}
+                    <a href={w.tokenUri} target="_blank" rel="noreferrer">
+                      {w.tokenUri}
+                    </a>
+                  </p>
+
+                  {/* 這裡是你當初丟給 Pinata 的 metadata 欄位 */}
+                  <p><b>Name:</b> {w.metadata.name}</p>
+                  <p><b>Region:</b> {w.metadata.origin}</p>
+                  <p><b>Year:</b> {w.metadata.year}</p>
+                  <p><b>Temperature:</b> {w.metadata.tempature}</p>
+                  <p><b>Condition Good:</b> {String(w.metadata.isConditionGood)}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
+
 
     return (
       <>

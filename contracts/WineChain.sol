@@ -92,6 +92,11 @@ contract WineChain is ERC721, ERC721URIStorage, AccessControl {
         emit WineCreated(tokenId, msg.sender, tokenUri);
         return tokenId;
     }
+    /// @notice How many wines have been minted so far
+    function totalMinted() external view returns (uint256) {
+        return _nextTokenId;
+    }
+
 
     /// @notice Distributor holds token to mark distribution (must be called by distributor)
     function distributeWine(uint256 tokenId) external onlyRole(DISTRIBUTOR_ROLE) {
