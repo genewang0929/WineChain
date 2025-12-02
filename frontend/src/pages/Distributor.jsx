@@ -31,6 +31,8 @@ export default function Distributor() {
   const [txHash, setTxHash] = useState("");
   const [loadingAction, setLoadingAction] = useState(false);
 
+  const DISTRIBUTOR_ROLE = ethers.id("DISTRIBUTOR_ROLE");
+
 
   const handleReciveWine = async () => {
     if (!wineID || !wineLocation || !wineTemp ) {
@@ -115,9 +117,14 @@ export default function Distributor() {
       }
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      // const signer = await provider.getSigner();
+      // const userAddress = await signer.getAddress();
+      // const targetOwner = distributorAddress;
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+  
+      const DISTRIBUTOR_ROLE = await contract.DISTRIBUTOR_ROLE();
+    
+
 
       // 1. ask contract how many tokens minted so far
       const total = await contract.totalMinted();
@@ -135,7 +142,12 @@ export default function Distributor() {
         }
 
         // if not mine(distributor), skip
-        if (owner.toLowerCase() !== userAddress.toLowerCase()) continue;
+        // if (owner.toLowerCase() !== distributorAddr.toLowerCase()) continue;
+
+        // key: check whether the owner has DISTRIBUTOR_ROLE
+        const hasRole = await contract.hasRole(DISTRIBUTOR_ROLE, owner);
+
+        if (!hasRole) continue; // if not distributor hold it, skip
 
         // 3. get tokenURI (ipfs://CID)
         const tokenUri = await contract.tokenURI(i);
