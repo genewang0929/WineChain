@@ -72,7 +72,7 @@ export default function Consumer() {
 
       // Call buyWine function and get tokenId
       const tokenUri = `ipfs://${cid}`;
-      const tx = await contract.buyWine(tokenUri);
+      const tx = await contract.buyWine(tokenIdNum);
 
       console.log("tx sent:", tx.hash);
       setTxHash(tx.hash);
@@ -169,13 +169,13 @@ export default function Consumer() {
     }
   };
   useEffect(() => {
-    if (path === "/distributor/mywines") {
+    if (path === "/consumer/history") {
       loadMyWines();
     }
   }, [path]);
 
   const goHome = () => navigate("/");
-  const goMenu = () => navigate("/distributor");
+  const goMenu = () => navigate("/consumer");
 
 
 
