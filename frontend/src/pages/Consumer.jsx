@@ -188,7 +188,7 @@ export default function Consumer() {
     if (path === "/consumer/mywines") {
       return (
         <div className="consumer-box">
-          <h2>Recive Wine Info</h2>
+          <h2>Receive Wine Info</h2>
           <div className="create-form"> 
             <label>Wine ID:</label>
             <input
@@ -197,7 +197,7 @@ export default function Consumer() {
               onChange={(e) => setWineID(e.target.value)}
               placeholder="e.g. 1"
             />
-            <button onClick={handleBuyWine}>Recive Wine</button>
+            <button onClick={handleBuyWine}>Receive Wine</button>
 
             {loading && <p>Uploading to IPFS...</p>}
             {cid && <p>Metadata CID: {cid}</p>}

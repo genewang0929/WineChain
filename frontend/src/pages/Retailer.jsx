@@ -211,7 +211,7 @@ export default function Retailer() {
     if (path === "/retailer/receive") {
       return (
         <div className="retailer-box">
-          <h2>Recive Wine Info</h2>
+          <h2>Receive Wine Info</h2>
           <div className="create-form"> 
             <label>Wine ID:</label>
             <input
@@ -244,7 +244,7 @@ export default function Retailer() {
               onChange={(e) => setIsConditionGood(e.target.checked)}
             />
 
-            <button onClick={handleReciveWine}>Recive Wine</button>
+            <button onClick={handleReciveWine}>Receive Wine</button>
 
             {loading && <p>Uploading to IPFS...</p>}
             {cid && <p>Metadata CID: {cid}</p>}

@@ -20,7 +20,7 @@ export default function Distributor() {
   const [myWines, setMyWines] = useState([]);
   const [loadingMyWines, setLoadingMyWines] = useState(false);
 
-  // const for Recive Wine
+  // const for Receive Wine
   const [wineID, setWineID] = useState("");
   const [wineLocation, setWineLocation] = useState("");
   const [wineTemp, setWineTemp] = useState("");
@@ -211,7 +211,7 @@ export default function Distributor() {
     if (path === "/distributor/receive") {
       return (
         <div className="distributor-box">
-          <h2>Recive Wine Info</h2>
+          <h2>Receive Wine Info</h2>
           <div className="create-form"> 
             <label>Wine ID:</label>
             <input
@@ -244,7 +244,7 @@ export default function Distributor() {
               onChange={(e) => setIsConditionGood(e.target.checked)}
             />
 
-            <button onClick={handleReciveWine}>Recive Wine</button>
+            <button onClick={handleReciveWine}>Receive Wine</button>
 
             {loading && <p>Uploading to IPFS...</p>}
             {cid && <p>Metadata CID: {cid}</p>}
