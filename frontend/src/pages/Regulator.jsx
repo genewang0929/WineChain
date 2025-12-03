@@ -9,15 +9,15 @@ export default function Regulator() {
   const location = useLocation();
   const path = location.pathname;  
 
-  // 準備要被檢查的酒（在 retailer 手上的）
+  // Prepare the wine that need to be inspected（In the retailer）
   const [pendingWines, setPendingWines] = useState([]);
   const [loadingPending, setLoadingPending] = useState(false);
 
-  // 我已經 inspect 過的酒（state = Inspected）
+  // The wine that already be inspected（state = Inspected）
   const [myWines, setMyWines] = useState([]);
   const [loadingMyWines, setLoadingMyWines] = useState(false);
 
-  // 上傳 & 交易狀態
+  // Upload the state
   const [loadingInspect, setLoadingInspect] = useState(false);
   const [cid, setCid] = useState("");
   const [txHash, setTxHash] = useState("");
@@ -69,13 +69,13 @@ export default function Regulator() {
         try {
           owner = await contract.ownerOf(i);
         } catch (e) {
-          continue; // token 不存在
+          continue; // token is not exist
         }
 
         const hasRole = await contract.hasRole(RETAILER_ROLE, owner);
-        if (!hasRole) continue; // 不在 retailer 手上就跳過
+        if (!hasRole) continue; // If not in retailer then skip
 
-        // 只抓 state = Received 的（還沒 inspect）
+        // Only fetch state = Received's（Not yet inspect）
         const wineInfo = await contract.getWine(i);
         // enum: 0 Produced, 1 Distributed, 2 Received, 3 Inspected, 4 Sold
         if (Number(wineInfo.state) !== 2) continue;
@@ -130,7 +130,7 @@ export default function Regulator() {
       setCid("");
       setTxHash("");
 
-      // 1. 準備 inspection 的 metadata
+      // 1. Prepare the meta data of inspection
       const inspectionMetadata = {
         tokenId: wine.tokenId,
         passed: true,
@@ -140,7 +140,7 @@ export default function Regulator() {
         isConditionGood: wine.metadata.isConditionGood,
       };
 
-      // 2. 上傳到 Pinata（沿用你 distributor 的 /uploadMetadata API）
+      // 2. Upload to Pinata（Use your distributor's /uploadMetadata API）
       const res = await fetch("http://localhost:5001/uploadMetadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -173,7 +173,7 @@ export default function Regulator() {
       //const signerAddress = await signer.getAddress();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
       /*
-      // 確認有 REGULATOR_ROLE
+      // Confirm if REGULATOR_ROLE
       const REGULATOR_ROLE = await contract.REGULATOR_ROLE();
       const hasRole = await contract.hasRole(REGULATOR_ROLE, signerAddress);
       if (!hasRole) {
@@ -198,7 +198,7 @@ export default function Regulator() {
         `Wine ID ${wine.tokenId} inspected successfully! Tx Hash: ${tx.hash}`
       );
 
-      // 檢查完重新載入清單
+      // After the inspection, reload the list
       await loadPendingWines();
     } catch (err) {
       console.error(err);

@@ -8,7 +8,7 @@ import "./RoleSelect.css";
 export default function RoleSelect() {
   const navigate = useNavigate();
 
-  // 這裡才是 useContext 的正確位置（在 component 裡面）
+  // This is the useContext's correct location（In the component）
   const { setRole, setAccountsInfo } = useContext(RoleContext);
 
   const [account, setAccount] = useState(null);
@@ -43,7 +43,7 @@ export default function RoleSelect() {
       const regulator = accounts[3];
       const consumer = accounts[4];
 
-      // 將角色地址存進 Context
+      // Store therole into the Context
       setAccountsInfo({
         winery,
         distributor,
