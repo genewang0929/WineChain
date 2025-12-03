@@ -290,7 +290,7 @@ export default function Retailer() {
             <div className="wine-list">
               {myWines.map((w) => (
                 <div key={w.tokenId} className="wine-card">
-                  <p><b>Token ID:</b> {w.tokenId}</p>
+                  <p><b>🏷️ Token ID:</b> {w.tokenId}</p>
 
                   <p>
                     <b>IPFS URI:</b>{" "}
