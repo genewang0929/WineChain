@@ -118,7 +118,8 @@ contract WineChain is ERC721, ERC721URIStorage, AccessControl {
         require(ownerOf(tokenId) == w.distributor, "Not owner");
         require(w.state == State.Distributed, "Wrong state");
         // transfer custody to retailer
-        safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
+        //safeTransferFrom(ownerOf(tokenId), msg.sender, tokenId);
+        _transfer(w.distributor, msg.sender, tokenId);
 
         w.retailer = msg.sender;
         w.state = State.Received;
@@ -144,8 +145,10 @@ contract WineChain is ERC721, ERC721URIStorage, AccessControl {
         require(ownerOf(tokenId) == w.retailer, "Not owner");
         require(w.state == State.Inspected, "Must be inspected before sale");
         // transfer token to consumer (should be called by current owner or approved)
-        address currentOwner = ownerOf(tokenId);
-        safeTransferFrom(currentOwner, msg.sender, tokenId);
+        //address currentOwner = ownerOf(tokenId);
+        //safeTransferFrom(currentOwner, msg.sender, tokenId);
+        _transfer(w.retailer, msg.sender, tokenId);
+
 
         w.consumer = msg.sender;
         w.state = State.Sold;
