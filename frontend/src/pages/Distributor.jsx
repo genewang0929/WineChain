@@ -268,7 +268,7 @@ export default function Distributor() {
     if (path === "/distributor/mywines") {
       return (
         <div className="distributor-box">
-          <h2>My Wines (Distributor)</h2>
+          <h2 className="mywines-title">🍷 My Wines (Distributor)</h2>
 
           {loadingMyWines && <p>Loading...</p>}
 
