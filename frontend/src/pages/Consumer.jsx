@@ -212,7 +212,8 @@ export default function Consumer() {
     if (path === "/consumer/history") {
       return (
         <div className="consumer-box">
-          <h2>My Wines (Consumer)</h2>
+          <h2 className="mywines-title">🍷 My Wines (Consumer)</h2>
+
 
           {loadingMyWines && <p>Loading...</p>}
 
