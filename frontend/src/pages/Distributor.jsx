@@ -20,7 +20,7 @@ export default function Distributor() {
   const [myWines, setMyWines] = useState([]);
   const [loadingMyWines, setLoadingMyWines] = useState(false);
 
-  
+  // const for Recive Wine
   const [wineID, setWineID] = useState("");
   const [wineLocation, setWineLocation] = useState("");
   const [wineTemp, setWineTemp] = useState("");
@@ -84,6 +84,16 @@ export default function Distributor() {
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // 確認有 RETAILER_ROLE
+      const signerAddress = await signer.getAddress();
+      const retailerRoleOnChain = await contract.DISTRIBUTOR_ROLE();
+      const hasRole = await contract.hasRole(retailerRoleOnChain, signerAddress);
+      if (!hasRole) {
+        alert("目前 MetaMask 帳號沒有 RETAILER_ROLE，請切到 Retailer 帳號或在合約那邊先 grantRole。");
+        setLoading(false);
+        return;
+      }
       
       //Call disributewine function 
       const tokenUri = `ipfs://${cid}`;
