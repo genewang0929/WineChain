@@ -195,7 +195,7 @@ export default function Regulator() {
       console.log("tx mined:", receipt);
 
       alert(
-        `Wine ID ${wine.tokenId} inspected successfully! Tx Hash: ${receipt.transactionHash}`
+        `Wine ID ${wine.tokenId} inspected successfully! Tx Hash: ${tx.hash}`
       );
 
       // 檢查完重新載入清單
@@ -244,9 +244,13 @@ export default function Regulator() {
         //if (owner.toLowerCase() !== retailerAddress.toLowerCase()) continue;
         // key: check whether the owner has retailer_role
         const hasRole = await contract.hasRole(RETAILER_ROLE, owner);
-
         if (!hasRole) continue; // if not distributor hold it, skip
-        if (Number(owner.state) !== 3) continue; // only approved wines
+
+        const wineInfo = await contract.getWine(i);
+        if (Number(wineInfo.state) !== 3) continue;
+
+        
+        //if (Number(owner.state) !== 3) continue; // only approved wines
 
         // 3. get tokenURI (ipfs://CID)
         const tokenUri = await contract.tokenURI(i);
