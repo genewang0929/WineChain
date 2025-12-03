@@ -317,21 +317,23 @@ export default function Regulator() {
             <div className="wine-list">
               {pendingWines.map((w) => (
                 <div key={w.tokenId} className="wine-card">
-                  <p><b>Token ID:</b> {w.tokenId}</p>
-                  <p>
-                    <b>IPFS URI:</b>{" "}
-                    <a href={w.tokenUri} target="_blank" rel="noreferrer">
-                      {w.tokenUri}
-                    </a>
-                  </p>
-                  <p><b>Name:</b> {w.metadata.name}</p>
-                  <p><b>Region:</b> {w.metadata.origin}</p>
-                  <p><b>Year:</b> {w.metadata.year}</p>
-                  <p><b>Temperature:</b> {w.metadata.tempature}</p>
-                  <p><b>Condition Good:</b> {String(w.metadata.isConditionGood)}</p>
-                  {/* Inspect 按鈕之後再接 approveWine */}
-                  {/* <button onClick={() => approveWine("inspect", w)}>Inspect</button> */}
-                  <button onClick={() => approveWine(w)}>Inspect</button>
+                  <div>
+                    <p><b>Token ID:</b> {w.tokenId}</p>
+                    <p>
+                      <b>IPFS URI:</b>{" "}
+                      <a href={w.tokenUri} target="_blank" rel="noreferrer">
+                        {w.tokenUri}
+                      </a>
+                    </p>
+                    <p><b>Name:</b> {w.metadata.name}</p>
+                    <p><b>Region:</b> {w.metadata.origin}</p>
+                    <p><b>Year:</b> {w.metadata.year}</p>
+                    <p><b>Temperature:</b> {w.metadata.tempature}</p>
+                    <p><b>Condition Good:</b> {String(w.metadata.isConditionGood)}</p>
+                    {/* Inspect 按鈕之後再接 approveWine */}
+                    {/* <button onClick={() => approveWine("inspect", w)}>Inspect</button> */}
+                  </div>
+                  <button className="wine-inspect" onClick={() => approveWine(w)}>Inspect</button>                
                   {/*<button onClick={handleReciveWine}>Recive Wine</button>*/}
                 </div>
               ))}
