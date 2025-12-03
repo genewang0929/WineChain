@@ -319,7 +319,7 @@ export default function Retailer() {
         <h2 className="subtitle">I want to ...</h2>
 
         <div className="retailer-buttons">
-          <button onClick={() => navigate("/retailer/receive")}>Receive from Winery</button>
+          <button onClick={() => navigate("/retailer/receive")}>Receive from Distributor</button>
           {/* 
           <button onClick={() => navigate("/retailer/deliver")}>Deliver to Retailer</button>
           <button onClick={() => navigate("/retailer/update")}>Update Condition</button>
