@@ -6,12 +6,12 @@ In the wine market, studies have shown that up to 20% of premium wines may be co
 To address this, our project proposes a **Blockchain-based Wine Supply Chain Provenance and Authenticity System (WineChain)** — a transparent and tamper-resistant tracking solution that records and verifies every stage of the wine supply chain, ensuring trust, traceability, and quality assurance.
 
 ## Dependencies or setup instructions
-To get started with Hardhat 3, you'll need [Node.js v22](https://nodejs.org/) or later installed, along with [npm](https://www.npmjs.com/) as our package manager. For the initial prompt to for setting up the project, we chose [TypeScript](https://www.typescriptlang.org/), [Ethers.js](https://docs.ethers.org/v5/), [Mocha](https://mochajs.org/).
+To get started, you'll need [Node.js v22](https://nodejs.org/) or later installed, along with [npm](https://www.npmjs.com/) as our package manager.
 
-Install the contents of package.json: `npm install`
+Install the contents of package.json: `npm install`. Make sure to run this command under root directory, backend project directory, as well as frontend project directory.
 
 
-## How to use or deploy
+## How to use WineChain
 1. Start and complie the smart contract:
     `npx hardhat compile`
 
@@ -19,20 +19,9 @@ Install the contents of package.json: `npm install`
     - Terminal 1:`npx hardhat node` start a loacal Ethereum chain, keep the terminal open
     - Terminal 2:`npx hardhat run scripts/deploy.js --network localhost` connect to local node and deploy 
 
+3. Integrate frontend, backend and blockchain:
+    - Terminal 3:`npm start` start a loacal backend server, keep the terminal open
+    - Terminal 4:`npm run dev` start a loacal frontend server, keep the terminal open
 
-3. Integrate frontend and blockchain:
-The frontend (React) communicates with the deployed smart contract using Ethers.js
-    ```
-    import { ethers } from "ethers";
-    import WineChainABI from "./artifacts/contracts/WineChain.sol/WineChain.json";
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contractAddress = "<DEPLOYED_CONTRACT_ADDRESS>";
-    const contract = new ethers.Contract(contractAddress, WineChainABI.abi, provider.getSigner());
-    ```
-
-4. Off-chain data integration:
-Files are uploaded to IPFS (via Pinata API).
-The returned IPFS hash is stored on-chain in the smart contract.
-6. Testing and Verification: 
+4. Testing and Verification: 
 `npx hardhat test`
